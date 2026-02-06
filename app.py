@@ -1,23 +1,23 @@
 import os
+import sys
 import re
 import markdown
 from flask import Flask, render_template, request, send_from_directory, jsonify
-from pathlib import Path
 import logging
-from datetime import datetime
-import html
 
-# Настройка логирования для Railway
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Проверяем версию Python
+python_version = sys.version_info
+logging.info(f"Python version: {python_version.major}.{python_version.minor}.{python_version.micro}")
 
 app = Flask(__name__)
 
-# Конфигурация для Railway
+# Конфигурация
 app.config['DATA_FOLDER'] = os.environ.get('DATA_FOLDER', 'data')
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['TITLE_PATTERN'] = re.compile(r'#\s+(.+)$', re.MULTILINE)
 
+# Создаем папку data если ее нет
+os.makedirs(app.config['DATA_FOLDER'], exist_ok=True)
 # Для Railway важно использовать правильный путь к статическим файлам
 if not os.path.exists(app.config['DATA_FOLDER']):
     os.makedirs(app.config['DATA_FOLDER'], exist_ok=True)
