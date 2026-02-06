@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>База знаний GARAGE</title>
+    <meta name="description" content="Запасная база знаний для поиска инструкций">
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --primary-light: #ff6659;
+            --primary-dark: #9a0007;
+            --secondary-color: #ff6f00;
+            --light-color: #f8f9fa;
+            --dark-color: #212121;
+            --gray-color: #757575;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(211, 47, 47, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-content {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            font-weight: 300;
+        }
+        
+        .header-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .search-container {
+            max-width: 800px;
+            margin: 2rem auto 3rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+        
+        .search-types {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-type-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-color);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .search-type-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+        }
+        
+        .search-type-btn:hover:not(.active) {
+            border-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 12px;
+            position: relative;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 18px 25px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+        
+        .search-btn {
+            padding: 0 35px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.3);
+        }
+        
+        .search-advanced {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+            display: none;
+        }
+        
+        .search-advanced.active {
+            display: block;
+        }
+        
+        .advanced-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .option-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid var(--primary-light);
+            margin-top: 5px;
+        }
+        
+        .suggestion-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .suggestion-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .suggestion-preview {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            line-height: 1.4;
+        }
+        
+        .content-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .results-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--gray-color);
+            font-size: 0.95rem;
+        }
+        
+        .results-count {
+            background: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .results-filter {
+            background: #fff3e0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 1.5rem;
+        }
+        
+        .instruction-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid #f0f0f0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .instruction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(211, 47, 47, 0.1);
+            border-color: var(--primary-light);
+        }
+        
+        .instruction-card.new {
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .instruction-card.featured {
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .instruction-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .instruction-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            line-height: 1.4;
+            padding-right: 60px;
+        }
+        
+        .instruction-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: var(--gray-color);
+        }
+        
+        .instruction-preview {
+            color: var(--gray-color);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+        }
+        
+        .instruction-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .instruction-images {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .instruction-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 8px;
+            background: rgba(211, 47, 47, 0.1);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .instruction-link:hover {
+            background: rgba(211, 47, 47, 0.2);
+            text-decoration: none;
+            transform: translateX(5px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray-color);
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: #e0e0e0;
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 3rem;
+        }
+        
+        .page-btn {
+            padding: 10px 18px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .page-btn:hover:not(.active) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--gray-color);
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 3rem;
+        }
+        
+        .footer-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @media (max-width: 1024px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .instructions-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .search-types {
+                flex-direction: column;
+            }
+            
+            .search-type-btn {
+                min-width: 100%;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-btn {
+                padding: 15px;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .instructions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-section {
+                padding: 1.5rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .results-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header {
+                padding: 2rem 0;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .instruction-card {
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-pattern"></div>
+        <div class="container">
+            <div class="header-content">
+                <h1><i class="fas fa-database"></i> База знаний GARAGE</h1>
+                <p class="subtitle">Запасная база знаний для поиска инструкций</p>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="search-container">
+            <div class="search-types" id="searchTypes">
+                <button type="button" class="search-type-btn active" data-type="title">
+                    <i class="fas fa-heading"></i> По названию
+                </button>
+                <button type="button" class="search-type-btn" data-type="content">
+                    <i class="fas fa-file-alt"></i> По содержанию
+                </button>
+                <button type="button" class="search-type-btn" data-type="advanced">
+                    <i class="fas fa-sliders-h"></i> Расширенный поиск
+                </button>
+            </div>
+            
+            <form method="get" action="/" id="searchForm">
+                <input type="hidden" name="search_type" id="searchTypeInput" value="title">
+                
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="{{ query }}"
+                        placeholder="Введите поисковый запрос..." 
+                        class="search-input"
+                        autocomplete="off"
+                        id="searchInput"
+                    >
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i> Найти
+                    </button>
+                </div>
+                
+                <div class="search-advanced" id="searchAdvanced">
+                    <div class="advanced-options">
+                        <div class="option-group">
+                            <label class="option-label">Тип поиска:</label>
+                            <select name="search_mode" class="option-select">
+                                <option value="any">Любое слово</option>
+                                <option value="all">Все слова</option>
+                                <option value="exact">Точная фраза</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">Сортировка:</label>
+                            <select name="sort" class="option-select">
+                                <option value="relevance">По релевантности</option>
+                                <option value="date_new">Сначала новые</option>
+                                <option value="date_old">Сначала старые</option>
+                                <option value="title">По названию</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">Количество:</label>
+                            <select name="limit" class="option-select">
+                                <option value="10">10 результатов</option>
+                                <option value="25" selected>25 результатов</option>
+                                <option value="50">50 результатов</option>
+                                <option value="100">100 результатов</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="search-suggestions" id="searchSuggestions"></div>
+        </div>
+        
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    {% if query %}
+                        <i class="fas fa-search"></i> Результаты поиска
+                    {% else %}
+                        <i class="fas fa-list"></i> Все инструкции
+                    {% endif %}
+                </h2>
+                
+                {% if query %}
+                <div class="results-info">
+                    <span class="results-count">
+                        <i class="fas fa-file-alt"></i> Найдено: {{ instructions|length }}
+                    </span>
+                    <span class="results-filter">
+                        <i class="fas fa-filter"></i> Поиск: {{ search_type_display }}
+                    </span>
+                </div>
+                {% else %}
+                <div class="results-info">
+                    <span class="results-count">
+                        <i class="fas fa-database"></i> Всего: {{ total_instructions }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if instructions %}
+                <div class="instructions-grid" id="instructionsGrid">
+                    {% for instr in instructions %}
+                    <div class="instruction-card {% if loop.index <= 3 %}new{% endif %}" 
+                         onclick="window.location.href='/instruction/{{ instr.id }}'">
+                        
+                        {% if loop.index <= 2 %}
+                        <div class="instruction-badge">
+                            <i class="fas fa-star"></i> Популярная
+                        </div>
+                        {% endif %}
+                        
+                        <h3 class="instruction-title">{{ instr.title }}</h3>
+                        
+                        <div class="instruction-meta">
+                            <span><i class="far fa-calendar"></i> {{ instr.modified|datetime }}</span>
+                            <span><i class="fas fa-hashtag"></i> {{ instr.id[:8] }}...</span>
+                        </div>
+                        
+                        <p class="instruction-preview">
+                            {{ instr.preview|default(instr.content[:200]|striptags) }}...
+                        </p>
+                        
+                        <div class="instruction-footer">
+                            <div class="instruction-images">
+                                <i class="fas fa-image"></i> {{ instr.images|length }} изображений
+                            </div>
+                            <a href="/instruction/{{ instr.id }}" class="instruction-link" onclick="event.stopPropagation()">
+                                Открыть <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if instructions|length > 25 %}
+                <div class="pagination">
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        {% if query %}
+                            <i class="fas fa-search"></i>
+                        {% else %}
+                            <i class="fas fa-database"></i>
+                        {% endif %}
+                    </div>
+                    <h3 class="empty-title">
+                        {% if query %}
+                            По запросу "{{ query }}" ничего не найдено
+                        {% else %}
+                            База знаний пуста
+                        {% endif %}
+                    </h3>
+                    <p>
+                        {% if query %}
+                            Попробуйте изменить поисковый запрос или воспользуйтесь другим типом поиска
+                        {% else %}
+                            Добавьте инструкции в папку data для начала работы
+                        {% endif %}
+                    </p>
+                    {% if query %}
+                        <a href="/" style="display: inline-block; margin-top: 1.5rem; padding: 12px 24px; background: var(--primary-color); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                            <i class="fas fa-list"></i> Показать все инструкции
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <footer>
+            <p>База знаний GARAGE • Запасная база знаний для поиска инструкций</p>
+            <div class="footer-info">
+                <div class="footer-item">
+                    <i class="fas fa-server"></i>
+                    <span>Работает на Railway</span>
+                </div>
+                <div class="footer-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Локальное хранение данных</span>
+                </div>
+                <div class="footer-item">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Автономная работа</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // Управление типами поиска
+        const searchTypeBtns = document.querySelectorAll('.search-type-btn');
+        const searchTypeInput = document.getElementById('searchTypeInput');
+        const searchAdvanced = document.getElementById('searchAdvanced');
+        
+        searchTypeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Убираем активный класс у всех кнопок
+                searchTypeBtns.forEach(b => b.classList.remove('active'));
+                // Добавляем активный класс текущей кнопке
+                this.classList.add('active');
+                
+                const type = this.dataset.type;
+                searchTypeInput.value = type;
+                
+                // Показываем/скрываем расширенный поиск
+                if (type === 'advanced') {
+                    searchAdvanced.classList.add('active');
+                } else {
+                    searchAdvanced.classList.remove('active');
+                }
+                
+                // Если не расширенный поиск, сразу отправляем форму
+                if (type !== 'advanced') {
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput.value.trim() !== '') {
+                        document.getElementById('searchForm').submit();
+                    }
+                }
+            });
+        });
+        
+        // Автодополнение поиска
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        let timeoutId;
+        
+        searchInput.addEventListener('input', async function() {
+            clearTimeout(timeoutId);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                searchSuggestions.style.display = 'none';
+                return;
+            }
+            
+            timeoutId = setTimeout(async () => {
+                try {
+                    const searchType = searchTypeInput.value === 'advanced' ? 'title' : searchTypeInput.value;
+                    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&type=${searchType}`);
+                    const data = await response.json();
+                    
+                    if (data.results && data.results.length > 0) {
+                        let html = '';
+                        data.results.forEach(result => {
+                            html += `
+                                <div class="suggestion-item" onclick="selectSuggestion('${result.id}')">
+                                    <div class="suggestion-title">
+                                        <i class="fas fa-file-alt"></i> ${result.title}
+                                    </div>
+                                    <div class="suggestion-preview">${result.preview}</div>
+                                </div>
+                            `;
+                        });
+                        searchSuggestions.innerHTML = html;
+                        searchSuggestions.style.display = 'block';
+                    } else {
+                        searchSuggestions.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Ошибка поиска:', error);
+                    searchSuggestions.style.display = 'none';
+                }
+            }, 300);
+        });
+        
+        function selectSuggestion(instructionId) {
+            window.location.href = `/instruction/${instructionId}`;
+        }
+        
+        // Закрываем подсказки при клике вне поля поиска
+        document.addEventListener('click', function(event) {
+            if (!searchInput.contains(event.target) && !searchSuggestions.contains(event.target)) {
+                searchSuggestions.style.display = 'none';
+            }
+        });
+        
+        // Сохраняем последний поисковый запрос в localStorage
+        searchInput.addEventListener('change', function() {
+            localStorage.setItem('lastSearch', this.value);
+            localStorage.setItem('lastSearchType', searchTypeInput.value);
+        });
+        
+        // Восстанавливаем последний поисковый запрос
+        window.addEventListener('load', function() {
+            const lastSearch = localStorage.getItem('lastSearch');
+            const lastSearchType = localStorage.getItem('lastSearchType');
+            
+            if (lastSearch && !searchInput.value) {
+                searchInput.value = lastSearch;
+            }
+            
+            if (lastSearchType) {
+                searchTypeInput.value = lastSearchType;
+                // Активируем соответствующую кнопку
+                const btn = document.querySelector(`.search-type-btn[data-type="${lastSearchType}"]`);
+                if (btn) {
+                    searchTypeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    if (lastSearchType === 'advanced') {
+                        searchAdvanced.classList.add('active');
+                    }
+                }
+            }
+        });
+        
+        // Горячие клавиши для поиска
+        document.addEventListener('keydown', function(event) {
+            // Ctrl + K для фокуса на поиске
+            if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+                event.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+            
+            // Esc для закрытия подсказок
+            if (event.key === 'Escape') {
+                searchSuggestions.style.display = 'none';
+            }
+            
+            // Enter в подсказках
+            if (event.key === 'Enter' && searchSuggestions.style.display === 'block') {
+                const firstSuggestion = document.querySelector('.suggestion-item');
+                if (firstSuggestion) {
+                    firstSuggestion.click();
+                }
+            }
+        });
+        
+        // Фокус на поле поиска при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.has('q')) {
+                searchInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>
